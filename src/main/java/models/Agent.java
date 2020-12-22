@@ -38,6 +38,8 @@ public class Agent implements Runnable {
      * si sa boite de message est vide et qu'il n'est pas sur sa position final alors il regarde la direction qui le rapproche le plus de sa position final
      * il regarde si il peut aller vers cet position si il peut il le fait et si il peut pas alors il envoi un message à l'agent dessus pour qu'il ce déplace
      * puis il recommence ces actions
+     *
+     * nous avons quelque problème de conflit sur les déplacement il faudrait rajouter une memoire au agent pour éviter qu'il ne fasse toujours les même cycles d'action et déplacement
      */
     @Override
     public void run() {

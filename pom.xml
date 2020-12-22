@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.example</groupId>
-    <artifactId>aknime_tp_taquin</artifactId>
+    <artifactId>akmine_tp_taquin</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <dependencies>
