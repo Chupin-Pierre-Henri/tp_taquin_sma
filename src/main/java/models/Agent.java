@@ -2,6 +2,7 @@ package models;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -36,11 +37,11 @@ public class Agent implements Runnable {
      * si se message est une demande de bouger alors il va essayer de bouger et va envoyer sa réussite ou non à l'agent qui lui a demandé de bouger
      * si se message est un accusé de reception qui lui dit que la demande a été rejeté alors
      * si sa boite de message est vide et qu'il n'est pas sur sa position final alors il regarde la direction qui le rapproche le plus de sa position final
-     * il regarde si il peut aller vers cet position si il peut il le fait et si il peut pas alors il envoi un message à l'agent dessus pour qu'il ce déplace
+     * si il y a plusieur position qui on une distance égal de sa position final et qui sont vide alors il choisir une des positions aléatoirement
+     * si la les positions qui le raproche le plus de sa position final à un agent alors il envoi un message à l'agent dessus pour qu'il ce déplace
+     * on pourrai mieux faire en faisant en sorte que si il y a deux positions qui le raproche le plus et que ces deux position sont prise par un agent alors il demande à ces deux agents leur distance avec leurs position final et il fait en sorte de demander à l'agent le plus éloigné de sa position de bouger
      * puis il recommence ces actions
-     *
-     * nous avons quelque problème de conflit sur les déplacement il faudrait rajouter une memoire au agent pour éviter qu'il ne fasse toujours les même cycles d'action et déplacement
-     */
+     **/
     @Override
     public void run() {
         currentPosition = environment.findAgentPosition(this);
@@ -50,8 +51,7 @@ public class Agent implements Runnable {
 
 
             List<Index2D> neighbours = environment.getNeighbours(this);
-            Index2D closest = finalPosition.closest(neighbours);
-            Agent neighbour = environment.getAgent(closest);
+
 
             if (!environment.getMessageBox(this).isEmpty()) {
                 environment.nettoieBox(this);
@@ -114,15 +114,30 @@ public class Agent implements Runnable {
                 continue; // il n'essaye pas de bougé si il est satisfé
             }
 
-            if (neighbour == null) {
+            ArrayList<Index2D> closest = finalPosition.closest(neighbours);
+            ArrayList<Agent> candidat = new ArrayList<>();
+            HashMap<Agent,Index2D> neighbourCandidat = new HashMap<>();
+            for(Index2D i : closest){
+                if(environment.getAgent(i) == null){
+                    neighbourCandidat.put(environment.getAgent(i),i);
+                    candidat.add(environment.getAgent(i));
+                }
+            }
+
+            if (!neighbourCandidat.isEmpty()) {
                 // move there
-                environment.move(this, currentPosition, closest);
-                currentPosition = closest;
+                Random rand1 = new Random();
+                Agent a = candidat.get(rand1.nextInt(candidat.size()));
+                Index2D plusProche = neighbourCandidat.get(a);
+                environment.move(this, currentPosition, plusProche);
+                currentPosition = plusProche;
                 environment.updateView();
 
             } else {
+                Index2D closestAgent = finalPosition.closestAgent(neighbours);
+                Agent neighbour = environment.getAgent(closestAgent);
                 // send msg to the blocking agent
-                Message m = new Message(neighbour, this, 1, closest, currentPosition, 1);
+                Message m = new Message(neighbour, this, 1, closestAgent, currentPosition, 1);
                 environment.envoi(m);
 
             }

@@ -1,6 +1,7 @@
 package models;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,11 +16,27 @@ public class Index2D {
         this.j = j;
     }
 
-    public Index2D closest(List<Index2D> other) {
+    public ArrayList<Index2D> closest(List<Index2D> other) {
+        double minDist = Double.POSITIVE_INFINITY;
+        ArrayList<Index2D> closest = new ArrayList<>();
+        for (Index2D i : other) {
+            if (minDist > distance(i)) {
+                closest.clear();
+                minDist = distance(i);
+                closest.add(i);
+            }
+            if(minDist == distance(i)){
+                closest.add(i);
+            }
+        }
+        return closest;
+    }
+
+    public Index2D closestAgent(List<Index2D> other) {
         double minDist = Double.POSITIVE_INFINITY;
         Index2D closest = null;
 
-        for (Index2D i : other) {
+        for (Index2D i: other) {
             if (minDist > distance(i)) {
                 minDist = distance(i);
                 closest = i;
